@@ -17,7 +17,7 @@ Copia y pega en la consola de R el siguiente código y ejecútalo:
 
 packages <- c("class", "e1071", "caret", "rpart", "rpart.plot", "nnet", 
               "cluster", "ggplot2", "MASS", "dplyr", "tidyr", 
-              "readr", "plotly", "psych", "islr2")
+              "readr", "plotly", "psych", "ISLR2")
 
 installed_packages <- installed.packages()
 
