@@ -10,3 +10,4 @@ packages_to_install <- setdiff(packages, installed_packages)
 if (length(packages_to_install) > 0) {
   install.packages(packages_to_install, dependencies = TRUE)
 }
+# 
