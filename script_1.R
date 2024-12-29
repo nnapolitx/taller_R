@@ -24,7 +24,7 @@ library(Rmisc)       # for summary statistics
 # Example: Set working directory and check path
 
 getwd() # check your current directory
-setwd("C:/Users/Usuario/Documents/WorkshopPre_ML_Enero_2025") # change it
+setwd("C:/Users/Usuario/Documents/R_preworkshop/taller_R") # change it
 getwd() # check again
 
 # Some useful shortcuts
@@ -68,10 +68,27 @@ df <- data.frame(ID = 1:3,
 # 2  2 Jane  30
 # 3  3 Alex  22
 
-# This kind is more commonly imported
-# personality <- read.csv("personalidad.csv")
+# This kind of data set is more commonly imported
+# The most common type of data file is a spreadsheet (an excel, xls o xlsx) file,
+# This file can be converted to a .csv file
+# This is the file that we will usually import
+# Try this: 
+
+personality <- read.csv("personalidad.csv")
+
+# If the object that you created looks bizarre, consider the following
+# Sometimes, .csv or .txt files can be saved using different regional settings
+# By default, the read.csv() command expects a comma ',' to separate data/observations in a file 
+# However, given the regional setting, a semicolon, ';' may have been used
+
+# For this reason, we either need to specify the separator, 
+# using for instance (sep = ";"),
+# or we can use the command read.csv2().
+
+# This, if the object that you created looks bizarre, try these command lines:
+personality <- read.csv2("personalidad.csv")
 personality <- read.csv("personalidad.csv", sep = ";")
-# personality <- read.csv2("personalidad.csv")
+# and just comment the ones that don't work
 
 # Inspect dataset
 colnames(personality)  # Column names
@@ -80,9 +97,12 @@ summary(personality)  # Summary statistics
 str(personality)  # Structure of the dataset
 class(personality$Sincerity)  # Check data type
 
+head(personality)
+tail(personality)
+
 # Access data
 personality[1, ]  # View first row
-personality[, 1]  # View first column
+personality[, 1]  # View first column, which column name was this?
 personality$Sincerity  # Access 'Sincerity' column
 
 # Lists
@@ -104,7 +124,7 @@ library(dplyr)
 set.seed(123)  # For reproducibility
 
 data <- data.frame(
-  ID = rep(paste0("ID", 1:10), each = 2),                # IDs repeated for each try
+  ID = rep(sprintf("ID%02d", 1:10), each = 2),           # IDs repeated for each try
   try = rep(c("first try", "second try"), 10),           # Labels for each attempt
   age = rep(sample(18:60, 10, replace = TRUE), each = 2), # Same age for each participant
   RT = round(runif(20, 100, 800), 0)                     # Random RT between 100 and 800 ms
@@ -120,6 +140,8 @@ data$epoch <- ifelse(data$RT <= 300, "bad", "good")
 write.csv(data, "dataset.csv", row.names = FALSE)
 
 # Clear your WORK SPACE
+# Select the tab "Environment" if isn't already visible
+# Then, click on the broom that appears in the "Workspace Pane" (to your right) 
 
 # Import CSV
 data_csv <- read.csv("dataset.csv")
@@ -144,14 +166,19 @@ personality$IsSincere <- ifelse(
   TRUE, 
   FALSE)
 
+colnames(personality)
+
 # Filter data
 df_olders <- df[df$Age >= 25,]
+df_olders_2 <- subset(df, Age >= 25)
+
 trusty <- personality[personality$Sincerity >= 3,]
 
 df_olders2 <- df[df$IsAdult,]
 
-# Subsetting rows
-subset(personality, Anxiety > 3 & Extraversion > 3)  # Filter with multiple conditions
+# Filter with multiple conditions
+cool_ones1 <- personality[personality$Anxiety > 3 & personality$Extraversion > 3,]
+cool_ones2 <- subset(personality, Anxiety > 3 & Extraversion > 3)  
 
 # Sorting data
 sort(df$Age)
@@ -172,59 +199,97 @@ is.na(personality2$Sincerity)
 # Replace missing values
 mean(personality2$Sincerity, na.rm = TRUE)
 
+# Remove rows with missing values
+personality2_clean <- na.omit(personality2)
+
+# Replace missing values
+personality3 <- personality2
+
+personality3$Sincerity[
+  is.na(personality3$Sincerity)] <- 
+  mean(personality3$Sincerity , na.rm = TRUE)
+
 #---- 6. Advanced transformations ----
 
 # Log Transform
-personality$LogAnxiety <- log(personality$Anxiety + 1)
+personality$LogOpeness <- log(personality$Openness + 1)
 
 # Scaling
-personality$ScaledAnxiety <- scale(personality$Anxiety)
+personality$ScaledOpeness <- as.numeric(scale(personality$Openness))
 
-# Binning
-personality$AnxietyGroup <- cut(personality$Anxiety, 
-                                breaks = 3, 
-                                labels = c("Low", "Medium", "High"))
+# Rank and group data into 3 equal-sized clusters
+personality <- personality %>%
+  arrange(Openness) %>%
+  mutate(OpenessGroup = ntile(Openness, 3)) %>%
+  mutate(OpenessGroup = factor(OpenessGroup, 
+                               labels = c("Low", "Medium", "High")))
 
-#---- 7. Descriptive Statistics ----
+dim(personality[personality$OpenessGroup == "Low",])
+dim(personality[personality$OpenessGroup == "Medium",])
+dim(personality[personality$OpenessGroup == "High",])
+
+# View the new changes at the end of the data frame
+head(personality)
+
+#---- 7. Basic statistics ----
 
 # Calculate statistics
-mean_anxiety <- mean(personality$Anxiety)
-sd_anxiety <- sd(personality$Anxiety)
+mean(personality$Anxiety)
+median(personality$Anxiety)
+sd(personality$Anxiety)
+var(personality$Anxiety)
 
 # Summary statistics
 summary(personality)
 
-# Variance
-var(personality$Anxiety)
-
-# Standard deviation
-sd(personality$Anxiety)
-
-# Median
-median(personality$Anxiety)
+# Row-wise operations
+personality$SincFair <- rowSums(personality[, c("Sincerity", "Fairness")])
 
 # Correlation
 cor(personality$Anxiety, personality$Extraversion)
 cor.test(personality$Anxiety, personality$Extraversion)
 
-#---- 8. Data reshaping ----
+#---- 8. Data reshaping (reshape) ----
 
-# data <- data.frame(
-#   ID = rep(paste0("ID", 1:10), each = 2),                # IDs repeated for each try
-#   try = rep(c("first try", "second try"), 10),           # Labels for each attempt
-#   age = rep(sample(18:60, 10, replace = TRUE), each = 2), # Same age for each participant
-#   RT = round(runif(20, 100, 800), 0)                     # Random RT between 100 and 800 ms
-# )
-# 
-# # View first few rows
-# head(data)
-# 
-# # Add variable
-# data$epoch <- ifelse(data$RT <= 300, "bad", "good")
-
+# From 3
 head(data)
 
+# ID        try age  RT epoch
+# 1 ID01  first try  48 730  good
+# 2 ID01 second try  48 272   bad
+# 3 ID02  first try  32 129   bad
+# 4 ID02 second try  32 330  good
+# 5 ID03  first try  31 768  good
+# 6 ID03 second try  31 723  good
+
+# select data
+dat2 <- data[, c(1, 2, 4)]
+
+library(reshape)
+
 # Long to Wide
+dat2_cast <- cast(dat2, 
+                  ID ~ try,
+                  value = c("RT"))
+
+# Wide to Long
+dat3 <- melt(dat2_cast,
+             id = c("ID"),
+             measured = c("first try",
+                          "second try"))
+
+#---- 8b. Data reshaping (tidyr) ----
+
+# From 3
+head(data)
+
+# ID        try age  RT epoch
+# 1 ID01  first try  48 730  good
+# 2 ID01 second try  48 272   bad
+# 3 ID02  first try  32 129   bad
+# 4 ID02 second try  32 330  good
+# 5 ID03  first try  31 768  good
+# 6 ID03 second try  31 723  good
 
 library(tidyr)
 
@@ -233,13 +298,30 @@ data_cast <- pivot_wider(data,
                          names_from = try, 
                          values_from = c(RT, epoch))
 
-# Melt the data back to long format
+# # A tibble: 6 × 6
+#    ID      age `RT_first try` `RT_second try` `epoch_first try` `epoch_second try`
+# 1 ID1      48            730             272 good              bad               
+# 2 ID2      32            129             330 bad               good              
+# 3 ID3      31            768             723 good              good              
+# 4 ID4      20            585             548 good              good              
+# 5 ID5      59            796             559 good              good              
+# 6 ID6      60            596             481 good              good 
+
+# Wide to Long
 data_melt <- pivot_longer(
   data_cast,
   cols = starts_with(c("RT", "epoch")),      # Columns to melt (those starting with RT or epoch)
   names_to = c(".value", "try"),             # Separate into 'RT'/'epoch' and 'try'
   names_sep = "_"                            # Split at underscore (_)
 )
+
+#   ID  try         age  RT epoch
+# 1 ID1  first try  48 730  good
+# 2 ID1 second try  48 272   bad
+# 3 ID2  first try  32 129   bad
+# 4 ID2 second try  32 330  good
+# 5 ID3  first try  31 768  good
+# 6 ID3 second try  31 723  good
 
 #---- 9. Loops and functions ----
 
@@ -271,12 +353,30 @@ for (i in 1:length(personality$Anxiety)) {
   print(mean(personality$Anxiety[1:i]))
 }
 
+# For + If
+for (i in 1:length(df$Age)) {
+  if (df$Age[i] > 26) {
+    print("Older than 26")
+  } else {
+    print("26 or younger")
+  }
+}
+
 # Custom Function
 mean_sd <- function(x) {
   list(mean = mean(x), sd = sd(x))
 }
 
 mean_sd(personality$Extraversion)
+
+# Custom Function
+square <- function(x) {
+  return(x^2)
+}
+print(square(4))
+
+# Apply Family
+result <- sapply(df$Age, square)
 
 #---- 10. Data visualization ----
 
@@ -297,11 +397,19 @@ ggplot(personality, aes(x = Extraversion, y = Agreeableness)) +
        y = "Agreeableness")
 
 # Bar Plot
-ggplot(personality, aes(x = factor(ID %% 5), y = Extraversion)) +
+ggplot(personality, aes(x = OpenessGroup, y = Openness)) +
   geom_bar(stat = "identity") +
-  labs(title = "Bar Plot of Extraversion by Group", 
+  labs(title = "Bar Plot of Openness by Group", 
        x = "Group", 
-       y = "Extraversion")
+       y = "Openness")
+
+# Bar Plot + individual points
+ggplot(personality, aes(x = OpenessGroup, y = Openness)) +
+  stat_summary(fun = mean, geom = "bar") +
+  geom_jitter(width = 0.2, size = 2, color = "darkblue") +
+  labs(title = "Bar Plot of Openness by Group", 
+       x = "Group", 
+       y = "Openness")
 
 #---- 11. Regression analysis ----
 
@@ -345,16 +453,25 @@ ggplot(personality, aes(x = Anxiety, y = predicted)) +
 
 #---- 13. Advanced data visualization ----
 
-library(ggrepel)     # Improved text label positioning
+# Replace 0 and 1 with meaningful labels
+personality <- personality %>%
+  mutate(HighExtraversion = ifelse(HighExtraversion == 1, "High", "Low"))
 
-# Grouped Analysis and Visualization
-personality_grouped <- personality %>%
-  group_by(AnxietyGroup, Agreeableness) %>%
-  summarize(Count = n(), .groups = 'drop') %>%
-  mutate(Percent = (Count / sum(Count)) * 100)
+# Ensure HighExtraversion is a factor
+personality <- personality %>%
+  mutate(HighExtraversion = as.factor(HighExtraversion))
 
-# Bar Plot with Grouped Data
-ggplot(personality_grouped, aes(x = AnxietyGroup, y = Percent, fill = Agreeableness)) +
-  geom_col(position = "dodge") +
-  labs(title = "Anxiety Groups vs Agreeableness Levels", x = "Anxiety Group", y = "Percentage") +
-  theme(legend.position = "top")
+# Grouped Analysis
+interaction_data <- personality %>%
+  group_by(OpenessGroup, HighExtraversion) %>%
+  summarize(MeanAnxiety = mean(Anxiety), .groups = 'drop')
+
+# Interaction Plot with Colors
+ggplot(interaction_data, aes(x = OpenessGroup, y = MeanAnxiety, group = HighExtraversion, color = HighExtraversion)) +
+  geom_line(size = 1) +
+  geom_point(size = 4) +
+  labs(title = "Anxiety vs Openness by Extraversion",
+       x = "Openness Group", y = "Mean Anxiety",
+       color = "Extraversion Level") +  # Update legend title
+  theme_minimal()
+
