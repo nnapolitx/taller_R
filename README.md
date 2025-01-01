@@ -24,7 +24,7 @@ for(p in packages){
     install.packages(p)
   }
 }
-```R
+```
 
 B. Para las personas que tomarán el taller de R y que además se inscribieron en el taller de machine learning copien y peguen en la consola de R el siguiente código (son 9 líneas de código) y lo ejecutan (le dan Enter):
 
@@ -38,4 +38,4 @@ for(p in packages){
     install.packages(p)
   }
 }
-```R
+```
