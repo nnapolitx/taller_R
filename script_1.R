@@ -16,9 +16,8 @@
 # and put between parenthesis the library you need
 # Examples:
 
-library(ggplot2)     # for creating visualizations
-library(reshape)     # for reshaping data frames
-library(Rmisc)       # for summary statistics
+library(ggplot2)
+library(dplyr)
 
 # Also you need to set a working directory
 # Example: Set working directory and check path
@@ -40,6 +39,10 @@ getwd() # check again
 
 # Alt+O to fold all
 # Alt+shift+O to unfold all
+
+# Start to write something and tape Tab (R make suggestions)
+# Arrows up and arrows down show "your history"
+# Esc solves the majority of issues to escape
 
 #---- 2. Basic data structures ----
 
@@ -102,7 +105,7 @@ tail(personality)
 
 # Access data
 personality[1, ]  # View first row
-personality[, 1]  # View first column, which column name was this?
+personality[, 2]  # View first column, which column name was this?
 personality$Sincerity  # Access 'Sincerity' column
 
 # Lists
@@ -161,6 +164,7 @@ personality$Anxiety > 3  # Check rows where Anxiety > 3
 
 # Conditional columns
 df$IsAdult <- ifelse(df$Age >= 25, TRUE, FALSE)
+
 personality$IsSincere <- ifelse(
   personality$Sincerity >= 3, 
   TRUE, 
