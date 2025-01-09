@@ -44,7 +44,7 @@ getwd() # check again
 # Arrows up and arrows down show "your history"
 # Esc solves the majority of issues to escape
 
-#---- 2. Basic data structures ----
+#---- 2. Basic data structures + personality----
 
 # Everything in R are objects (i.e. variables)
 # Objects are things you can manipulate
@@ -117,7 +117,7 @@ my_list <- list(ID = 1,
 matrix1 <- matrix(1:9, 
                   nrow = 3)
 
-#---- 3. Exporting and importing data ----
+#---- 3. Exporting and importing data + data----
 
 library(dplyr)
 
