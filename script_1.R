@@ -1,7 +1,9 @@
 
 # JLUF + NN
 # 26/12/2024
+# 09/01/2025
 # pre-workshop R tutorial
+# check also: https://doctoradoenpsicologiautal.github.io/estadistica/
 
 #---- 1. Getting started with R ----
 
@@ -44,7 +46,7 @@ getwd() # check again
 # Arrows up and arrows down show "your history"
 # Esc solves the majority of issues to escape
 
-#---- 2. Basic data structures + personality----
+#---- 2. Basic data structures + personality ----
 
 # Everything in R are objects (i.e. variables)
 # Objects are things you can manipulate
@@ -117,7 +119,7 @@ my_list <- list(ID = 1,
 matrix1 <- matrix(1:9, 
                   nrow = 3)
 
-#---- 3. Exporting and importing data + data----
+#---- 3. Exporting and importing data + data ----
 
 library(dplyr)
 
@@ -233,7 +235,7 @@ dim(personality[personality$OpenessGroup == "Medium",])
 dim(personality[personality$OpenessGroup == "High",])
 
 # View the new changes at the end of the data frame
-head(personality)
+tail(personality)
 
 #---- 7. Basic statistics ----
 
@@ -395,7 +397,7 @@ ggplot(personality, aes(x = Anxiety)) +
 
 # Scatterplot
 ggplot(personality, aes(x = Extraversion, y = Agreeableness)) +
-  geom_point() +
+  geom_point(alpha = 0.2) +
   labs(title = "Scatterplot: Extraversion vs Agreeableness", 
        x = "Extraversion", 
        y = "Agreeableness")
@@ -415,7 +417,27 @@ ggplot(personality, aes(x = OpenessGroup, y = Openness)) +
        x = "Group", 
        y = "Openness")
 
-#---- 11. Regression analysis ----
+#---- 11. Save your figures ----
+
+# Before anything pay attention to your working directory!
+# To save data:
+# above the figure: use the png function,
+# below the figure: use dev.off()
+
+# Check below: 
+
+png("fig_1.png", width = 500, height = 500, res = 100)
+
+# Scatterplot
+ggplot(personality, aes(x = Extraversion, y = Agreeableness)) +
+  geom_point(alpha = 0.2) +
+  labs(title = "Scatterplot: Extraversion vs Agreeableness", 
+       x = "Extraversion", 
+       y = "Agreeableness")
+
+dev.off()
+
+#---- 12. Regression analysis ----
 
 # Simple Linear Regression
 lm1 <- lm(Extraversion ~ Anxiety, data = personality)
@@ -431,7 +453,7 @@ ggplot(personality, aes(x = Anxiety, y = Extraversion)) +
   geom_smooth(method = "lm", col = "red") +
   labs(title = "Regression: Extraversion vs Anxiety", x = "Anxiety", y = "Extraversion")
 
-#---- 12. Logistic regression ----
+#---- 13. Logistic regression ----
 
 # Create binary outcome (High vs Low Extraversion)
 personality$HighExtraversion <- ifelse(
@@ -455,7 +477,7 @@ ggplot(personality, aes(x = Anxiety, y = predicted)) +
        title = "Predicted Probability of High Extraversion") +
   theme_minimal()
 
-#---- 13. Advanced data visualization ----
+#---- 14. Advanced data visualization ----
 
 # Replace 0 and 1 with meaningful labels
 personality <- personality %>%
